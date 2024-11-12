@@ -67,14 +67,16 @@ class Snake(Frame):
     def move_snake(self):
         """Move a cobra para a próxima posição."""
         x, y = self.snake[0]
+
+        # Ajusta a posição para atravessar as bordas
         if self.direction == 'Left':
-            x -= DOT_SIZE
+            x = (x - DOT_SIZE) % WIDTH
         elif self.direction == 'Right':
-            x += DOT_SIZE
+            x = (x + DOT_SIZE) % WIDTH
         elif self.direction == 'Up':
-            y -= DOT_SIZE
+            y = (y - DOT_SIZE) % HEIGHT
         elif self.direction == 'Down':
-            y += DOT_SIZE
+            y = (y + DOT_SIZE) % HEIGHT
 
         # Insere a nova posição no início da lista
         self.snake.insert(0, (x, y))

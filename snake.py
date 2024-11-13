@@ -19,6 +19,7 @@ class Snake(Frame):
         self.load_images()
         self.init_game()
         self.bind_all("<KeyPress>", self.on_key_pressed)
+        self.board.bind("<Button-1>", self.toggle_pause)  # Clique no board para pausar
         self.after(DELAY, self.on_timer)
 
     def load_images(self):
@@ -29,6 +30,7 @@ class Snake(Frame):
     def init_game(self):
         """Inicializa o estado do jogo."""
         self.in_game = True
+        self.paused = False
         self.score = 0
 
         # Posição inicial da cobra e maçã
@@ -68,7 +70,7 @@ class Snake(Frame):
         """Move a cobra para a próxima posição."""
         x, y = self.snake[0]
 
-        # Ajusta a posição para atravessar as bordas
+        # permite atravessar as bordas
         if self.direction == 'Left':
             x = (x - DOT_SIZE) % WIDTH
         elif self.direction == 'Right':
@@ -92,6 +94,10 @@ class Snake(Frame):
     def on_key_pressed(self, event):
         """Muda a direção da cobra com base na tecla pressionada."""
         key = event.keysym
+        if key == 'space':
+            self.toggle_pause()
+            return
+
         directions = {'Left', 'Right', 'Up', 'Down'}
         if key in directions:
             # Impede a cobra de ir na direção oposta imediatamente
@@ -100,12 +106,24 @@ class Snake(Frame):
             if key != opposite.get(self.direction):
                 self.direction = key
 
+    def toggle_pause(self, event=None):
+        """Alterna entre o estado de pausa e jogo."""
+        if self.in_game:
+            self.paused = not self.paused
+            if self.paused:
+                self.board.create_text(WIDTH / 2, HEIGHT / 2,
+                                       text="Pausado",
+                                       fill='white', font=('Arial', 20))
+            else:
+                self.draw_objects()
+
     def on_timer(self):
         """Controla o loop do jogo."""
         if self.in_game:
-            self.check_collisions()
-            self.move_snake()
-            self.draw_objects()
+            if not self.paused:  # move a cobra se não estiver pausado
+                self.check_collisions()
+                self.move_snake()
+                self.draw_objects()
             self.after(DELAY, self.on_timer)
         else:
             self.game_over()
